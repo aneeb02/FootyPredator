@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}{% endblock %} - Football Predictor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              dark: {
+                "bg-primary": "#1a1a1a",
+                "bg-secondary": "#2d2d2d",
+                "text-primary": "#ffffff",
+                "text-secondary": "#a0aec0",
+                accent: "#3b82f6",
+                "accent-hover": "#2563eb",
+                border: "#404040",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    {% block head %}{% endblock %}
+  </head>
+  <body class="bg-dark-bg-primary text-dark-text-primary min-h-screen">
+    <nav class="bg-dark-bg-secondary border-b border-dark-border">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex">
+            <div class="flex-shrink-0 flex items-center">
+              <a href="/" class="text-xl font-bold text-dark-accent"
+                >Football Predictor</a
+              >
+            </div>
+            <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+              <a
+                href="/"
+                class="border-transparent text-dark-text-secondary hover:text-dark-text-primary hover:border-dark-accent inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+              >
+                Home
+              </a>
+              <a
+                href="/predict"
+                class="border-transparent text-dark-text-secondary hover:text-dark-text-primary hover:border-dark-accent inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+              >
+                Predict
+              </a>
+              <a
+                href="/wiki"
+                class="border-transparent text-dark-text-secondary hover:text-dark-text-primary hover:border-dark-accent inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+              >
+                Player Wiki
+              </a>
+              <a
+                href="/live"
+                class="border-transparent text-dark-text-secondary hover:text-dark-text-primary hover:border-dark-accent inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+              >
+                Live Updates
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="py-8">{% block content %}{% endblock %}</main>
+
+    <footer class="bg-dark-bg-secondary border-t border-dark-border mt-auto">
+      <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <p class="text-center text-dark-text-secondary text-sm">
+          © 2025 FootyPredator. All rights reserved.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

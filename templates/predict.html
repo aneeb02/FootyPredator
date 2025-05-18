@@ -1,0 +1,418 @@
+{% extends "base.html" %} {% block title %}Player Position Predictor{% endblock
+%} {% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  .hero-text {
+    background: linear-gradient(45deg, #3b82f6, #2563eb);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradient 3s ease infinite;
+    background-size: 200% 200%;
+  }
+
+  @keyframes gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .stat-card {
+    transition: all 0.3s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-5px);
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="max-w-4xl mx-auto px-4">
+  <!-- Hero Section -->
+  <div class="text-center mb-12 animate-fadeInUp" style="animation-delay: 0.2s">
+    <h1 class="text-4xl md:text-6xl font-bold mb-6 hero-text">
+      Where Would You Play?
+    </h1>
+    <p class="text-xl text-dark-text-secondary max-w-2xl mx-auto">
+      Discover your perfect position on the pitch! Input your stats and let our
+      AI predict where you'd shine the brightest.
+    </p>
+  </div>
+
+  <div
+    class="bg-dark-bg-secondary rounded-lg shadow-lg p-6 border border-dark-border"
+  >
+    <form method="POST" class="space-y-6" id="predictionForm">
+      <!-- Physical Attributes Section -->
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-4 text-dark-text-primary">
+          Physical Attributes
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="stat-card">
+            <label
+              class="block text-sm font-medium text-dark-text-secondary mb-2"
+              >Age</label
+            >
+            <input
+              type="number"
+              name="age"
+              min="16"
+              max="45"
+              value="{{ stats.age if stats else 23 }}"
+              class="w-full px-4 py-2 bg-dark-bg-primary border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-dark-accent text-dark-text-primary"
+              required
+            />
+          </div>
+
+          <div class="stat-card">
+            <label
+              class="block text-sm font-medium text-dark-text-secondary mb-2"
+              >Height (cm)</label
+            >
+            <input
+              type="number"
+              name="height_cm"
+              min="150"
+              max="220"
+              value="{{ stats.height_cm if stats else 180 }}"
+              class="w-full px-4 py-2 bg-dark-bg-primary border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-dark-accent text-dark-text-primary"
+              required
+            />
+          </div>
+
+          <div class="stat-card">
+            <label
+              class="block text-sm font-medium text-dark-text-secondary mb-2"
+              >Weight (kg)</label
+            >
+            <input
+              type="number"
+              name="weight_kgs"
+              min="50"
+              max="120"
+              value="{{ stats.weight_kgs if stats else 74 }}"
+              class="w-full px-4 py-2 bg-dark-bg-primary border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-dark-accent text-dark-text-primary"
+              required
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Ratings Section -->
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-4 text-dark-text-primary">
+          Player Ratings
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="stat-card">
+            <label
+              class="block text-sm font-medium text-dark-text-secondary mb-2"
+              >Overall Rating</label
+            >
+            <input
+              type="range"
+              name="overall_rating"
+              min="0"
+              max="100"
+              value="{{ stats.overall_rating if stats else 90 }}"
+              class="w-full h-2 bg-dark-bg-primary rounded-lg appearance-none cursor-pointer accent-dark-accent"
+              oninput="updateValue(this, 'overall_rating_value')"
+              required
+            />
+            <div
+              class="text-center text-sm text-dark-text-secondary"
+              id="overall_rating_value"
+            >
+              {{ stats.overall_rating if stats else 90 }}
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <label
+              class="block text-sm font-medium text-dark-text-secondary mb-2"
+              >Potential</label
+            >
+            <input
+              type="range"
+              name="potential"
+              min="0"
+              max="100"
+              value="{{ stats.potential if stats else 95 }}"
+              class="w-full h-2 bg-dark-bg-primary rounded-lg appearance-none cursor-pointer accent-dark-accent"
+              oninput="updateValue(this, 'potential_value')"
+              required
+            />
+            <div
+              class="text-center text-sm text-dark-text-secondary"
+              id="potential_value"
+            >
+              {{ stats.potential if stats else 95 }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Technical Skills Section -->
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-4 text-dark-text-primary">
+          Technical Skills
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="stat-card">
+            <label
+              class="block text-sm font-medium text-dark-text-secondary mb-2"
+              >Sprint Speed</label
+            >
+            <input
+              type="range"
+              name="sprint_speed"
+              min="0"
+              max="100"
+              value="{{ stats.sprint_speed if stats else 42 }}"
+              class="w-full h-2 bg-dark-bg-primary rounded-lg appearance-none cursor-pointer accent-dark-accent"
+              oninput="updateValue(this, 'sprint_speed_value')"
+              required
+            />
+            <div
+              class="text-center text-sm text-dark-text-secondary"
+              id="sprint_speed_value"
+            >
+              {{ stats.sprint_speed if stats else 42 }}
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <label
+              class="block text-sm font-medium text-dark-text-secondary mb-2"
+              >Short Passing</label
+            >
+            <input
+              type="range"
+              name="short_passing"
+              min="0"
+              max="100"
+              value="{{ stats.short_passing if stats else 75 }}"
+              class="w-full h-2 bg-dark-bg-primary rounded-lg appearance-none cursor-pointer accent-dark-accent"
+              oninput="updateValue(this, 'short_passing_value')"
+              required
+            />
+            <div
+              class="text-center text-sm text-dark-text-secondary"
+              id="short_passing_value"
+            >
+              {{ stats.short_passing if stats else 75 }}
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <label
+              class="block text-sm font-medium text-dark-text-secondary mb-2"
+              >Long Passing</label
+            >
+            <input
+              type="range"
+              name="long_passing"
+              min="0"
+              max="100"
+              value="{{ stats.long_passing if stats else 77 }}"
+              class="w-full h-2 bg-dark-bg-primary rounded-lg appearance-none cursor-pointer accent-dark-accent"
+              oninput="updateValue(this, 'long_passing_value')"
+              required
+            />
+            <div
+              class="text-center text-sm text-dark-text-secondary"
+              id="long_passing_value"
+            >
+              {{ stats.long_passing if stats else 77 }}
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <label
+              class="block text-sm font-medium text-dark-text-secondary mb-2"
+              >Dribbling</label
+            >
+            <input
+              type="range"
+              name="dribbling"
+              min="0"
+              max="100"
+              value="{{ stats.dribbling if stats else 90 }}"
+              class="w-full h-2 bg-dark-bg-primary rounded-lg appearance-none cursor-pointer accent-dark-accent"
+              oninput="updateValue(this, 'dribbling_value')"
+              required
+            />
+            <div
+              class="text-center text-sm text-dark-text-secondary"
+              id="dribbling_value"
+            >
+              {{ stats.dribbling if stats else 90 }}
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <label
+              class="block text-sm font-medium text-dark-text-secondary mb-2"
+              >Strength</label
+            >
+            <input
+              type="range"
+              name="strength"
+              min="0"
+              max="100"
+              value="{{ stats.strength if stats else 70 }}"
+              class="w-full h-2 bg-dark-bg-primary rounded-lg appearance-none cursor-pointer accent-dark-accent"
+              oninput="updateValue(this, 'strength_value')"
+              required
+            />
+            <div
+              class="text-center text-sm text-dark-text-secondary"
+              id="strength_value"
+            >
+              {{ stats.strength if stats else 70 }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <button
+          type="submit"
+          class="bg-dark-accent text-white px-8 py-3 rounded-lg hover:bg-dark-accent-hover transition-colors text-lg font-semibold transform hover:scale-105 transition-transform"
+        >
+          Predict My Position
+        </button>
+      </div>
+    </form>
+
+    {% if position %}
+    <div class="mt-12">
+      <div
+        class="bg-dark-bg-primary p-8 rounded-lg border border-dark-border text-center animate-fadeInUp"
+        style="animation-delay: 0.2s"
+      >
+        <h2 class="text-3xl font-bold mb-6 text-dark-text-primary">
+          Your Perfect Position
+        </h2>
+        <div class="text-5xl font-bold text-dark-accent mb-4">
+          {{ position }}
+        </div>
+        <p class="text-xl text-dark-text-secondary mb-6">
+          Confidence:
+          <span class="text-dark-accent font-bold"
+            >{{ "%.1f"|format(confidence) }}%</span
+          >
+        </p>
+        <p class="text-dark-text-secondary max-w-2xl mx-auto">
+          Based on your attributes, you'd excel in this position! Your unique
+          combination of skills makes you a perfect fit for this role on the
+          pitch.
+        </p>
+      </div>
+
+      <div
+        class="mt-8 bg-dark-bg-primary p-8 rounded-lg border border-dark-border animate-fadeInUp"
+        style="animation-delay: 0.4s"
+      >
+        <h3 class="text-2xl font-bold mb-6 text-dark-text-primary text-center">
+          Your Skills Radar
+        </h3>
+        <canvas id="radarChart" width="400" height="400"></canvas>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  // Function to update slider values
+  function updateValue(slider, valueId) {
+    document.getElementById(valueId).textContent = slider.value;
+  }
+
+  // Initialize all sliders with their current values
+  document.addEventListener("DOMContentLoaded", function () {
+    const sliders = document.querySelectorAll('input[type="range"]');
+    sliders.forEach((slider) => {
+      const valueId = slider.name + "_value";
+      updateValue(slider, valueId);
+    });
+  });
+
+  // Form submission handler
+  document
+    .getElementById("predictionForm")
+    .addEventListener("submit", function (e) {
+      const formData = new FormData(this);
+      const data = {};
+      for (let [key, value] of formData.entries()) {
+        data[key] = value;
+      }
+      console.log("Form data:", data);
+    });
+</script>
+
+{% if position %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      new Chart(ctx, {
+          type: 'radar',
+          data: {
+              labels: ['Overall Rating', 'Potential', 'Sprint Speed', 'Short Passing', 'Long Passing', 'Dribbling', 'Strength'],
+              datasets: [{
+                  label: 'Player Stats',
+                  data: [
+                      {{ stats.overall_rating }},
+                      {{ stats.potential }},
+                      {{ stats.sprint_speed }},
+                      {{ stats.short_passing }},
+                      {{ stats.long_passing }},
+                      {{ stats.dribbling }},
+                      {{ stats.strength }}
+                  ],
+                  backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                  borderColor: 'rgb(59, 130, 246)',
+                  pointBackgroundColor: 'rgb(59, 130, 246)',
+                  pointBorderColor: '#fff',
+                  pointHoverBackgroundColor: '#fff',
+                  pointHoverBorderColor: 'rgb(59, 130, 246)'
+              }]
+          },
+          options: {
+              scales: {
+                  r: {
+                      angleLines: {
+                          display: true,
+                          color: 'rgba(255, 255, 255, 0.1)'
+                      },
+                      grid: {
+                          color: 'rgba(255, 255, 255, 0.1)'
+                      },
+                      pointLabels: {
+                          color: '#a0aec0'
+                      },
+                      ticks: {
+                          color: '#a0aec0',
+                          backdropColor: 'transparent'
+                      }
+                  }
+              },
+              plugins: {
+                  legend: {
+                      labels: {
+                          color: '#a0aec0'
+                      }
+                  }
+              }
+          }
+      });
+  });
+</script>
+{% endif %} {% endblock %}
